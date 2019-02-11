@@ -20,8 +20,8 @@ namespace weather_json_console
             timer.AutoReset = true;
             timer.Start();
 
-            LastRun = DateTime.UtcNow;
-            //DEBUG LastRun = new DateTime(2019, 1, 26, 14, 00, 00);
+            LastRun = DateTime.Now;
+            LastRun = new DateTime(2019, 1, 28, 13, 00, 00);
             
             Console.WriteLine($"Timer started at {DateTime.Now.ToString()}.");
 
@@ -45,33 +45,36 @@ namespace weather_json_console
         {
 
             weatherjson.WeatherAlerts wa = new WeatherAlerts();
-            weatherjson.AlertList alerts = wa.GetWeatherAlerts();
+            weatherjson.AlertSourceList alerts;
 
-            Console.WriteLine($"Checking for new alerts since {LastRun.ToString()}...");
-
-
-            if (alerts.features.Count() > 0)
+            try
             {
-                foreach (var alert in alerts.features)
-                {
-                    //Console.WriteLine($"Checking if {alert.properties.sent.Value.ToString()} > {LastRun.ToString()}...");
+                alerts = wa.GetWeatherAlerts(LastRun, WeatherAlerts.AlertFilterType.Alerts,WeatherAlerts.AlertSortOrder.Descending);
 
-                    if (alert.properties.sent.Value > LastRun)
+                Console.WriteLine($"Checking for new alerts since {LastRun.ToString()}...");
+
+
+                if (alerts.AlertItems.Count() > 0)
+                {
+                    foreach (var alert in alerts.AlertItems)
                     {
-                        Console.WriteLine($"NEW ALERT: {alert.properties.Event} for {alert.properties.areaDesc} effective {alert.properties.effective.Value.ToString()}{Environment.NewLine}");
+                        //Console.WriteLine($"{alert.AlertInfo.MessageType.ToUpper()}: {alert.AlertInfo.EventName} for {Helpers.FormatCountyNames(alert.AlertInfo.AffectedCounties, alert.AlertInfo.Geocodes.UGC)} effective {alert.AlertInfo.EffectiveTime.Value.ToString()}{Environment.NewLine}");
+                        Console.WriteLine(Helpers.FormatCountyNames(alert.AlertInfo.CountyDetails, false));
                     }
-                    //else
-                    //{
-                    //    Console.WriteLine("Alert occurred before last run.");
-                    //}
+
+                    Console.WriteLine($"There are {alerts.AlertItems.Count().ToString()} alerts since the last check.");
+
+                    
+                }
+                else
+                {
+                    Console.WriteLine("There are no new alerts since the last check.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("There are no new alerts since the last check.");
+                Console.WriteLine($"ERROR: {ex.Message}");
             }
-
-            Console.WriteLine($"There are {alerts.features.Count().ToString()} active alerts.");
 
             LastRun = DateTime.Now;
 
