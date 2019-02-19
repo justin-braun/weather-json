@@ -8,7 +8,7 @@ namespace weatherjson
 {
     public static class Helpers
     {
-        public static string FormatCountyNames(weatherjson.AlertSourceList.CountyDetails[] CountyList, bool OnlyIncludeMN)
+        public static string FormatCountyNames(AlertSourceList.CountyDetails[] CountyList, bool OnlyIncludeMN)
         {
             try
             {

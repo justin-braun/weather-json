@@ -98,18 +98,19 @@ namespace weatherjson
 
                 // Sort by Alert Type
                 //string[] customAlertOrder = { "Emergency", "Alert", "Warning", "Watch", "Advisory" };
-
+                //
                 //// Sort so most recent is top of list
                 AlertSourceList.Feature[] SortAlertItems;
 
                 switch (sortOrder)
                 {
                     case AlertSortOrder.Ascending:
-                        SortAlertItems = asl.AlertItems.OrderBy(x => x.AlertInfo.EventName).ThenBy(x => x.AlertInfo.SentTime).ToArray();
+                        // SortAlertItems = asl.AlertItems.OrderBy(x => x.AlertInfo.EventName).ThenBy(x => x.AlertInfo.SentTime).ToArray();
+                        SortAlertItems = asl.AlertItems.OrderBy(x => Array.IndexOf(WeatherEventTypes.Events, x.AlertInfo.EventName)).ThenBy(x => x.AlertInfo.SentTime).ToArray();
                         asl.AlertItems = SortAlertItems;
                         break;
                     case AlertSortOrder.Descending:
-                        SortAlertItems = asl.AlertItems.OrderBy(x => x.AlertInfo.EventName).ThenByDescending(x => x.AlertInfo.SentTime).ToArray();
+                        SortAlertItems = asl.AlertItems.OrderBy(x => Array.IndexOf(WeatherEventTypes.Events, x.AlertInfo.EventName)).ThenByDescending(x => x.AlertInfo.SentTime).ToArray();
                         asl.AlertItems = SortAlertItems;
                         break;
                 }
