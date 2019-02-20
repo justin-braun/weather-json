@@ -71,7 +71,8 @@ namespace weatherjson
                         countiesList.Add(cd);
                     }
 
-                    alert.AlertInfo.CountyDetails = countiesList.ToArray();
+                    //alert.AlertInfo.CountyDetails = countiesList.ToArray();
+                    alert.AlertInfo.CountyDetails = countiesList.OrderBy(x => x.StateAbbrev).ThenBy(x => x.CountyName).ToArray();
                 }
 
                 // Merge county details back into dataset

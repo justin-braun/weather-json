@@ -41,6 +41,7 @@ namespace weatherjson
 
                 //Linq query to take combined list and group counties by state name
                 var query = from c in filteredCountyList
+                            orderby c.StateAbbrev, c.CountyName
                             group c by c.StateAbbrev into countiesByState
                             let countyNames = from c2 in countiesByState
                                               select c2.CountyName

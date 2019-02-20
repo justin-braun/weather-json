@@ -59,7 +59,7 @@ namespace weather_json_console
                     foreach (var alert in alerts.AlertItems)
                     {
                         //Console.WriteLine($"{alert.AlertInfo.MessageType.ToUpper()}: {alert.AlertInfo.EventName} for {Helpers.FormatCountyNames(alert.AlertInfo.AffectedCounties, alert.AlertInfo.Geocodes.UGC)} effective {alert.AlertInfo.EffectiveTime.Value.ToString()}{Environment.NewLine}");
-                        Console.WriteLine($"{alert.AlertInfo.EventName} until {alert.AlertInfo.EndsTime.ToString()}");
+                        Console.WriteLine($"{alert.AlertInfo.EventName} for {Helpers.FormatCountyNames(alert.AlertInfo.CountyDetails, true)} until {alert.AlertInfo.EndsTime.ToString()}");
                     }
 
                     Console.WriteLine($"There are {alerts.AlertItems.Count().ToString()} alerts since the last check.");
