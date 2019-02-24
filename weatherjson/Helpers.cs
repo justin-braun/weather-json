@@ -8,7 +8,7 @@ namespace weatherjson
 {
     public static class Helpers
     {
-        public static string FormatCountyNames(AlertSourceList.CountyDetails[] CountyList, bool OnlyIncludeMN)
+        public static string FormatCountyNames(AlertSourceList.Counties[] CountyList, bool OnlyIncludeMN)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace weatherjson
 
 
                 // Check for needed filtering
-                weatherjson.AlertSourceList.CountyDetails[] filteredCountyList;
+                weatherjson.AlertSourceList.Counties[] filteredCountyList;
 
                 if (OnlyIncludeMN)
                     filteredCountyList = CountyList.Where(c => c.StateAbbrev.ToLower() == "mn").ToArray();

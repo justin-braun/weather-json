@@ -11,7 +11,10 @@ namespace weatherjson
 {
     public class WeatherAlerts
     {
-        private const string API_ALERT_URL = @"https://api.weather.gov/alerts/active/area/MN";
+        //private const string API_ALERT_URL = @"https://api.weather.gov/alerts/active/area/MN";
+        private const string API_ALERT_URL = @"https://api.weather.gov/alerts?area=MN";
+
+               
 
         public enum AlertFilterType
         {
@@ -25,13 +28,14 @@ namespace weatherjson
             Ascending,
             Descending
         }
-        //public enum AlertStatus
-        //{
-        //    New,
-        //    Updated,
-        //    Cancelled,
-        //    All
-        //}
+
+        public enum AlertStatus
+        {
+            New,
+            Update,
+            Cancel,
+            All
+        }
 
         public AlertSourceList GetWeatherAlerts(DateTime sinceDate, AlertFilterType alertType, AlertSortOrder sortOrder)
         {
@@ -56,23 +60,23 @@ namespace weatherjson
                 foreach(var alert in alerts)
                 {
                     
-                    List<string> counties = alert.AlertInfo.AffectedCounties.Split(';').ToList();
+                    List<string> counties = alert.AlertInfo.AreaDescRaw.Split(';').ToList();
                     string[] geocodes = alert.AlertInfo.Geocodes.UGC;
 
                     var combinedList = counties.Zip(geocodes, (c, s) => new { CountyName = c.Trim(), StateAbbrev = s.Substring(0, 2) }).OrderBy(x => x.StateAbbrev).ToList();
 
-                    List<weatherjson.AlertSourceList.CountyDetails> countiesList = new List<AlertSourceList.CountyDetails>();
+                    List<weatherjson.AlertSourceList.Counties> countiesList = new List<AlertSourceList.Counties>();
 
                     foreach (var county in combinedList)
                     {
-                        weatherjson.AlertSourceList.CountyDetails cd = new AlertSourceList.CountyDetails();
+                        weatherjson.AlertSourceList.Counties cd = new AlertSourceList.Counties();
                         cd.CountyName = county.CountyName;
                         cd.StateAbbrev = county.StateAbbrev;
                         countiesList.Add(cd);
                     }
 
                     //alert.AlertInfo.CountyDetails = countiesList.ToArray();
-                    alert.AlertInfo.CountyDetails = countiesList.OrderBy(x => x.StateAbbrev).ThenBy(x => x.CountyName).ToArray();
+                    alert.AlertInfo.Counties = countiesList.OrderBy(x => x.StateAbbrev).ThenBy(x => x.CountyName).ToArray();
                 }
 
                 // Merge county details back into dataset

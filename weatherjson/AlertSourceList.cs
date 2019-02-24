@@ -40,7 +40,7 @@ namespace weatherjson
             [JsonProperty(PropertyName = "type")]
             public string AlertType { get; set; }
             [JsonProperty(PropertyName = "areaDesc")]
-            public string AffectedCounties { get; set; }
+            public string AreaDescRaw { get; set; }
             [JsonProperty(PropertyName = "geocode")]
             public Geocode Geocodes { get; set; }
             [JsonProperty(PropertyName = "affectedZones")]
@@ -85,7 +85,11 @@ namespace weatherjson
             public string Response { get; set; }
             [JsonProperty(PropertyName = "parameters")]
             public Parameters Parameters { get; set; }
-            public CountyDetails[] CountyDetails { get; set; }
+            [JsonProperty(PropertyName = "replacedBy")]
+            public string ReplacedBy { get; set; }
+            [JsonProperty(PropertyName = "replacedAt")]
+            public string ReplacedAt { get; set; }
+            public Counties[] Counties { get; set; }
         }
 
         public class Geocode
@@ -113,7 +117,7 @@ namespace weatherjson
             public DateTime? sent { get; set; }
         }
 
-        public class CountyDetails
+        public class Counties
         {
             public string CountyName { get; set; }
             public string StateAbbrev { get; set; }
