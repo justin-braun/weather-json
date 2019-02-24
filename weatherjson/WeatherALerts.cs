@@ -54,10 +54,21 @@ namespace weatherjson
                 // Deserialize object
                 asl = JsonConvert.DeserializeObject<AlertSourceList>(contents);
 
+                //Console.WriteLine("Initial alert count = " + asl.AlertItems.Count().ToString());
+
+                // Filter based on sinceDate and don't include expired alerts
+                AlertSourceList.Feature[] filteredDateAlertItems = asl.AlertItems.Where(x => x.AlertInfo.SentTime > sinceDate && x.AlertInfo.EndsTime >= DateTime.Now).ToArray();
+                asl.AlertItems = filteredDateAlertItems;
+
+                
+
                 // Get collection of alerts to build county details
                 AlertSourceList.Feature[] alerts = asl.AlertItems;
 
-                foreach(var alert in alerts)
+                //Console.WriteLine("Filtered alert count = " + alerts.Count().ToString());
+
+                // Add county details
+                foreach (var alert in alerts)
                 {
                     
                     List<string> counties = alert.AlertInfo.AreaDescRaw.Split(';').ToList();
@@ -81,10 +92,6 @@ namespace weatherjson
 
                 // Merge county details back into dataset
                 asl.AlertItems = alerts;
-
-                // Filter based on sinceDate provided
-                AlertSourceList.Feature[] filteredDateAlertItems = asl.AlertItems.Where(x => x.AlertInfo.SentTime.Value > sinceDate).ToArray();
-                asl.AlertItems = filteredDateAlertItems;
 
                 // Filter on alertType provided
                 AlertSourceList.Feature[] filteredTypeAlertItems;
