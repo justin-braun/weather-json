@@ -11,10 +11,8 @@ namespace weatherjson
 {
     public class WeatherAlerts
     {
-        //private const string API_ALERT_URL = @"https://api.weather.gov/alerts/active/area/MN";
-        private const string API_ALERT_URL = @"https://api.weather.gov/alerts?area=MN";
-
-               
+        private const string API_ALERT_URL = @"https://api.weather.gov/alerts/active/area/MN";
+        private const string API_ALL_ALERT_URL = @"https://api.weather.gov/alerts?area=MN";
 
         public enum AlertFilterType
         {
@@ -29,46 +27,43 @@ namespace weatherjson
             Descending
         }
 
-        public enum AlertStatus
-        {
-            New,
-            Update,
-            Cancel,
-            All
-        }
-
         public AlertSourceList GetWeatherAlerts(DateTime sinceDate, AlertFilterType alertType, AlertSortOrder sortOrder)
         {
-            string contents = "";
-            weatherjson.AlertSourceList asl = new AlertSourceList();
+            string alertContents = "";
+            string alertCancelContents = "";
 
+            weatherjson.AlertSourceList alertActiveSourceList = new AlertSourceList();
+            weatherjson.AlertSourceList alertCancelSourceList = new AlertSourceList();
+            weatherjson.AlertSourceList alertList = new AlertSourceList();
             try
             {
-                // Download JSON Format alert data from API
+                // Download JSON Format alert data from API - ACTIVE MN ALERTS ONLY
                 using (var wc = new WebClient())
                 {
                     wc.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
-                    contents = wc.DownloadString(API_ALERT_URL);
+                    alertContents = wc.DownloadString(API_ALERT_URL);
                 }
 
-                // Deserialize object
-                asl = JsonConvert.DeserializeObject<AlertSourceList>(contents);
+                // Download JSON Format alert data from API - MN CANCELLATIONS ONLY
+                using (var wc = new WebClient())
+                {
+                    wc.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+                    alertCancelContents = wc.DownloadString(API_ALL_ALERT_URL);
+                }
 
-                //Console.WriteLine("Initial alert count = " + asl.AlertItems.Count().ToString());
+                // Deserialize objects
+                alertActiveSourceList = JsonConvert.DeserializeObject<AlertSourceList>(alertContents);
+                alertCancelSourceList = JsonConvert.DeserializeObject<AlertSourceList>(alertCancelContents);
 
                 // Filter based on sinceDate and don't include expired alerts
-                AlertSourceList.Feature[] filteredDateAlertItems = asl.AlertItems.Where(x => x.AlertInfo.SentTime > sinceDate && x.AlertInfo.EndsTime >= DateTime.Now).ToArray();
-                asl.AlertItems = filteredDateAlertItems;
+                alertActiveSourceList.AlertItems = alertActiveSourceList.AlertItems.Where(x => x.AlertInfo.SentTime > sinceDate && x.AlertInfo.EndsTime >= DateTime.Now).ToArray();
+                alertCancelSourceList.AlertItems = alertCancelSourceList.AlertItems.Where(x => x.AlertInfo.SentTime > sinceDate && x.AlertInfo.EndsTime >= DateTime.Now).ToArray();
 
-                
-
-                // Get collection of alerts to build county details
-                AlertSourceList.Feature[] alerts = asl.AlertItems;
-
-                //Console.WriteLine("Filtered alert count = " + alerts.Count().ToString());
+                // Merge both datasets together into a new list
+                alertList.AlertItems = alertActiveSourceList.AlertItems.Concat(alertCancelSourceList.AlertItems).ToArray();
 
                 // Add county details
-                foreach (var alert in alerts)
+                foreach (var alert in alertList.AlertItems)
                 {
                     
                     List<string> counties = alert.AlertInfo.AreaDescRaw.Split(';').ToList();
@@ -86,57 +81,39 @@ namespace weatherjson
                         countiesList.Add(cd);
                     }
 
-                    //alert.AlertInfo.CountyDetails = countiesList.ToArray();
+                    // Sort counties list
                     alert.AlertInfo.Counties = countiesList.OrderBy(x => x.StateAbbrev).ThenBy(x => x.CountyName).ToArray();
                 }
 
-                // Merge county details back into dataset
-                asl.AlertItems = alerts;
-
-                // Filter on alertType provided
-                AlertSourceList.Feature[] filteredTypeAlertItems;
-
+                // Filter for alert type
                 switch (alertType)
                 {
                     case AlertFilterType.Alerts:
-                        filteredTypeAlertItems = asl.AlertItems.Where(x => x.AlertInfo.EventName.ToLower().Contains("warning") || x.AlertInfo.EventName.ToLower().Contains("watch") || x.AlertInfo.EventName.ToLower().Contains("advisory") || x.AlertInfo.EventName.ToLower().Contains("alert") || x.AlertInfo.EventName.ToLower().Contains("emergency")).ToArray();
-                        asl.AlertItems = filteredTypeAlertItems;
+                        alertList.AlertItems = alertList.AlertItems.Where(x => x.AlertInfo.EventName.ToLower().Contains("warning") || x.AlertInfo.EventName.ToLower().Contains("watch") || x.AlertInfo.EventName.ToLower().Contains("advisory") || x.AlertInfo.EventName.ToLower().Contains("alert") || x.AlertInfo.EventName.ToLower().Contains("emergency")).ToArray();
                         break;
                     case AlertFilterType.Statements:
-                        filteredTypeAlertItems = asl.AlertItems.Where(x => x.AlertInfo.EventName.ToLower().Contains("statement")).ToArray();
-                        asl.AlertItems = filteredTypeAlertItems;
+                        alertList.AlertItems = alertList.AlertItems.Where(x => x.AlertInfo.EventName.ToLower().Contains("statement")).ToArray();
                         break;
                 }
 
-                // Sort by Alert Type
-                //string[] customAlertOrder = { "Emergency", "Alert", "Warning", "Watch", "Advisory" };
-                //
-                //// Sort so most recent is top of list
-                AlertSourceList.Feature[] SortAlertItems;
-
+                // Sort results
                 switch (sortOrder)
                 {
                     case AlertSortOrder.Ascending:
-                        // SortAlertItems = asl.AlertItems.OrderBy(x => x.AlertInfo.EventName).ThenBy(x => x.AlertInfo.SentTime).ToArray();
-                        SortAlertItems = asl.AlertItems.OrderBy(x => Array.IndexOf(WeatherEventTypes.Events, x.AlertInfo.EventName)).ThenBy(x => x.AlertInfo.SentTime).ToArray();
-                        asl.AlertItems = SortAlertItems;
+                        alertList.AlertItems = alertList.AlertItems.OrderBy(x => Array.IndexOf(WeatherEventTypes.MessageTypes, x.AlertInfo.MessageType)).ThenBy(x => Array.IndexOf(WeatherEventTypes.Events, x.AlertInfo.EventName)).ThenBy(x => x.AlertInfo.SentTime).ToArray();
                         break;
                     case AlertSortOrder.Descending:
-                        SortAlertItems = asl.AlertItems.OrderBy(x => Array.IndexOf(WeatherEventTypes.Events, x.AlertInfo.EventName)).ThenByDescending(x => x.AlertInfo.SentTime).ToArray();
-                        asl.AlertItems = SortAlertItems;
+                        alertList.AlertItems = alertActiveSourceList.AlertItems.OrderBy(x => Array.IndexOf(WeatherEventTypes.MessageTypes, x.AlertInfo.MessageType)).ThenBy(x => Array.IndexOf(WeatherEventTypes.Events, x.AlertInfo.EventName)).ThenByDescending(x => x.AlertInfo.SentTime).ToArray();
                         break;
                 }
-
-
-
-                //AlertSourceList.Feature[] finalSortItems;
             }
             catch
             {
                 throw;
             }
 
-            return asl;
+            // Return final object
+            return alertList;
         }
     }
 }

@@ -39,6 +39,13 @@ namespace weatherjson
             "Special Weather Statement"
         };
 
+        public static string[] MessageTypes =
+        {
+            "Cancel",
+            "Alert",
+            "Update"
+        };
+
         public static List<string> GetEvents()
         {
             return Events.ToList();
