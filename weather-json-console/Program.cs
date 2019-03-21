@@ -21,11 +21,14 @@ namespace weather_json_console
             timer.Start();
 
             LastRun = DateTime.Now;
-            LastRun = new DateTime(2019, 1, 28, 13, 00, 00);
+            LastRun = new DateTime(2019, 3, 6, 13, 00, 00);
             
             Console.WriteLine($"Timer started at {DateTime.Now.ToString()}.");
 
-            Timer_Elapsed(null,null);
+            //Timer_Elapsed(null,null);
+
+            
+            
 
             Console.Read();
 
@@ -52,6 +55,7 @@ namespace weather_json_console
                 alerts = wa.GetWeatherAlerts(LastRun, WeatherAlerts.AlertFilterType.Alerts,WeatherAlerts.AlertSortOrder.Descending);
 
                 Console.WriteLine($"Checking for new alerts since {LastRun.ToString()}...");
+                Console.WriteLine($"Last downloaded source: {alerts.SourceLastUpdated}");
 
 
                 if (alerts.AlertItems.Count() > 0)

@@ -46,11 +46,16 @@
   <ItemGroup>
     <Compile Include="AlertSourceList.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="Icons\IconLibrary.cs" />
+    <Compile Include="Icons\IconList.cs" />
     <Compile Include="WeatherAlerts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WeatherEventTypes.cs" />
+    <Compile Include="WeatherCollector.cs" />
+    <Compile Include="ZoneForecast.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Icons\iconlogic.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

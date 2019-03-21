@@ -26,7 +26,21 @@ namespace weatherjson
             Ascending,
             Descending
         }
+        public AlertSourceList GetWeatherAlertsForCounty(DateTime sinceDate, string countyName)
+        {
+            AlertSourceList alerts = GetWeatherAlerts(sinceDate, AlertFilterType.All, AlertSortOrder.Descending);
 
+            //if (alerts.AlertItems.Count() == 0)
+            //    return alerts;
+
+            // More than 0 alerts available
+
+            alerts.AlertItems = alerts.AlertItems.Where(x => x.AlertInfo.AreaDescRaw.ToLower().Contains(countyName.ToLower())).ToArray();
+
+            return alerts;
+
+
+        }
         public AlertSourceList GetWeatherAlerts(DateTime sinceDate, AlertFilterType alertType, AlertSortOrder sortOrder)
         {
             string alertContents = "";
@@ -40,6 +54,7 @@ namespace weatherjson
                 // Download JSON Format alert data from API - ACTIVE MN ALERTS ONLY
                 using (var wc = new WebClient())
                 {
+                    wc.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
                     wc.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
                     alertContents = wc.DownloadString(API_ALERT_URL);
                 }
@@ -47,6 +62,7 @@ namespace weatherjson
                 // Download JSON Format alert data from API - MN CANCELLATIONS ONLY
                 using (var wc = new WebClient())
                 {
+                    wc.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
                     wc.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
                     alertCancelContents = wc.DownloadString(API_ALL_ALERT_URL);
                 }
@@ -60,6 +76,7 @@ namespace weatherjson
                 alertCancelSourceList.AlertItems = alertCancelSourceList.AlertItems.Where(x => x.AlertInfo.SentTime > sinceDate && x.AlertInfo.EndsTime >= DateTime.Now).ToArray();
 
                 // Merge both datasets together into a new list
+                alertList.SourceLastUpdated = alertActiveSourceList.SourceLastUpdated;
                 alertList.AlertItems = alertActiveSourceList.AlertItems.Concat(alertCancelSourceList.AlertItems).ToArray();
 
                 // Add county details

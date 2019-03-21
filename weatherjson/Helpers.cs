@@ -12,25 +12,6 @@ namespace weatherjson
         {
             try
             {
-                //List<string> counties = alertCountyString.Split(';').ToList();
-                //List<string> geocodes = geoCodes.ToList();
-
-                //var combinedList = counties.Zip(geocodes, (c, s) => new { CountyName = c.Trim(), StateAbbrev = s.Substring(0, 2) }).OrderBy(x => x.StateAbbrev).ToList();
-                //var combinedList = counties.Zip(geocodes, (countyName, stateAbbrev) => $"{countyName}{FormatStateCode(stateAbbrev)}").ToList();
-
-                // Linq query to take combined list and group counties by state name
-                //var query = from c in combinedList
-                //            group c by c.StateAbbrev into countiesByState
-                //            let countyNames = from c2 in countiesByState
-                //                              select c2.CountyName
-
-                //            select new
-                //            {
-                //                StateName = countiesByState.Key,
-                //                CountyNames = countyNames
-                //            };
-
-
                 // Check for needed filtering
                 weatherjson.AlertSourceList.Counties[] filteredCountyList;
 
@@ -88,38 +69,6 @@ namespace weatherjson
                     index++;
                     lastState = state.StateName;
                 }
-
-
-                //foreach (var state in query.ToList())
-                //{
-
-                //    if (state.CountyNames.Count() == 1)
-                //    {
-                //        sb.Append($"{state.CountyNames.ToList()[0]} County in {state.StateName}");
-                //    }
-                //    else if (state.CountyNames.Count() == 2)
-                //    {
-                //        sb.Append($"{state.CountyNames.ToList()[0]} and {state.CountyNames.ToList()[1]} Counties in {state.StateName}");
-                //    }
-                //    else if (state.CountyNames.Count() > 2)
-                //    {
-                //        string temp = string.Join(", ", state.CountyNames.ToList());
-                //        int lastCommaPos = temp.LastIndexOf(", ");
-                //        sb.Append($"{temp.Remove(lastCommaPos, 1).Insert(lastCommaPos, ", and")} Counties in {state.StateName}");
-                //    }
-                //    else
-                //    {
-                //        sb.Append($"{state.CountyNames.ToList()[0]} County in {state.StateName}");
-                //    }
-
-                //    if (state.StateName != lastState && index != query.ToList().Count - 1)
-                //    {
-                //        sb.Append("; ");
-                //    }
-
-                //    index++;
-                //    lastState = state.StateName;
-                //}
 
                 return sb.ToString();
             }
