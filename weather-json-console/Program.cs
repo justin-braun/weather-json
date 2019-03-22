@@ -27,8 +27,23 @@ namespace weather_json_console
 
             //Timer_Elapsed(null,null);
 
-            
-            
+            weatherjson.IconLibrary ico = new IconLibrary();
+
+            weatherjson.IconList.Icon icon = new IconList.Icon();
+            icon = ico.GetIcon("partly cloudy");
+
+            Console.WriteLine(icon.Day);
+
+            Forecaster stf = new Forecaster();
+            List<ShortTermForecast> shortTermForecasts = new List<ShortTermForecast>();
+            shortTermForecasts = stf.GetShortTermForecast("KBRO");
+
+            Console.WriteLine($"KMPX Casts = {shortTermForecasts.Count().ToString()}");
+
+            foreach (var fc in shortTermForecasts)
+            {
+                Console.WriteLine($"{fc.ForecastText}");
+            }
 
             Console.Read();
 

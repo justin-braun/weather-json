@@ -11,13 +11,13 @@ namespace weatherjson
 {
     public class IconLibrary
     {
-        Icons.IconList IconLib = new Icons.IconList();
+        IconList IconLib = new IconList();
 
         public IconLibrary()
         {
             string fileContents = "";
 
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("weawtherjson.Icons.iconlogic.json"))
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("weatherjson.iconlogic.json"))
             {
                 TextReader tr = new StreamReader(stream);
                 fileContents = tr.ReadToEnd();
@@ -25,22 +25,31 @@ namespace weatherjson
 
             if (fileContents != "")
             {
-                IconLib = JsonConvert.DeserializeObject<Icons.IconList>(fileContents);
+                IconLib = JsonConvert.DeserializeObject<IconList>(fileContents);
             }
             else
             {
                 throw new Exception("Contents of the icon library can't be loaded.");
             }
 
-            foreach(var icon in IconLib.Icons)
-            {
-                
-            }
         }
 
-        public string GetIcon(string dayDesc, string forecastText)
+        public IconList.Icon GetIcon(string forecastText)
         {
-            return "";
+
+            IconList.Icon icon = new IconList.Icon();
+
+            foreach(var item in IconLib.Icons)
+            {
+                if (item.Phrases.ToString().ToLower().Contains(forecastText.ToLower()))
+                {
+                    icon = item;
+                    break;
+                }
+
+            }
+
+            return icon;
         }
     }
 }
