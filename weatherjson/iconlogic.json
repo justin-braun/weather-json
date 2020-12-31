@@ -1,5 +1,5 @@
 {
-   "urlprefix": "http://weathernerd.com/images/icons/wxicons/",
+   "urlprefix": "/images/icons/wxicons/",
    "icon": [
       {
          "day": "chsnow.png",

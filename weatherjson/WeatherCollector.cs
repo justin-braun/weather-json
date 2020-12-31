@@ -10,6 +10,8 @@ namespace weatherjson
 {
     public static class WeatherCollector
     {
+        public static string apiSampleUrl = "https://api.weather.gov/zones/forecast/MNZ069/forecast"
+
         private static string DownloadApiResult(string url)
         {
             using (var wc = new WebClient())
@@ -22,7 +24,7 @@ namespace weatherjson
 
         public static ZoneForecast GetZonecast()
         {
-            string apiResult = DownloadApiResult(@"https://api.weather.gov/zones/forecast/MNZ069/forecast");
+            string apiResult = DownloadApiResult(apiSampleUrl);
 
             ZoneForecast zonecastJson = JsonConvert.DeserializeObject<ZoneForecast>(apiResult);
 
